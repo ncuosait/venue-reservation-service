@@ -34,3 +34,5 @@ build/
 
 *.log
 .env
+venue_tables.sql
+src/main/resources/application-dev.yaml

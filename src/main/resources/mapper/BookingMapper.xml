@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper [
+  <!ELEMENT mapper (select|insert|update|delete)*>
+  <!ATTLIST mapper namespace CDATA #REQUIRED>
+  <!ELEMENT select (#PCDATA)>
+  <!ATTLIST select id CDATA #REQUIRED resultType CDATA #IMPLIED resultMap CDATA #IMPLIED>
+  <!ELEMENT insert (#PCDATA)>
+  <!ATTLIST insert id CDATA #REQUIRED parameterType CDATA #IMPLIED useGeneratedKeys (true|false) #IMPLIED keyProperty CDATA #IMPLIED>
+  <!ELEMENT update (#PCDATA)>
+  <!ATTLIST update id CDATA #REQUIRED parameterType CDATA #IMPLIED>
+  <!ELEMENT delete (#PCDATA)>
+  <!ATTLIST delete id CDATA #REQUIRED parameterType CDATA #IMPLIED>
+]>
+<mapper namespace="tw.edu.ncu.osa.venue_reservation_service.mapper.BookingMapper">
+
+    <select id="countConflictingApprovedBookings" resultType="int">
+        SELECT COUNT(*) FROM bookings
+        WHERE venue_id = #{venueId}
+        AND booking_date = #{date}
+        AND status = 2
+        AND (time_slots &amp; #{mask}) != 0
+    </select>
+
+    <insert id="insertBooking" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bookings (venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version)
+        VALUES (#{venueId}, #{userId}, #{bookingDate}, #{timeSlots}, #{status}, #{purpose}, #{pCount}, #{contactInfo}, 1)
+    </insert>
+
+    <insert id="insertBookingEquipment">
+        INSERT INTO booking_equipment (booking_id, equipment_id)
+        VALUES (#{bookingId}, #{equipmentId})
+    </insert>
+
+</mapper>

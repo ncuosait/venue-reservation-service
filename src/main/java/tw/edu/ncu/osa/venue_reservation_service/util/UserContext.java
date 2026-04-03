@@ -17,7 +17,7 @@ public class UserContext {
     }
 
     /**
-     * 極度重要：請求結束後必須移除，否則在 Thread Pool 環境下會導致內存洩漏
+     * 重要：請求結束後必須移除，否則在 Thread Pool 環境下會導致記憶洩漏和安全問題
      */
     public static void remove() {
         USER_THREAD_LOCAL.remove();
