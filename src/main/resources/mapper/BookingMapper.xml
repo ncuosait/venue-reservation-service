@@ -13,6 +13,10 @@
 ]>
 <mapper namespace="tw.edu.ncu.osa.venue_reservation_service.mapper.BookingMapper">
 
+    <!-- ========================================== -->
+    <!-- 衝突檢查 -->
+    <!-- ========================================== -->
+
     <select id="countConflictingApprovedBookings" resultType="int">
         SELECT COUNT(*) FROM bookings
         WHERE venue_id = #{venueId}
@@ -21,10 +25,55 @@
         AND (time_slots &amp; #{mask}) != 0
     </select>
 
+    <!-- ========================================== -->
+    <!-- 基本 CRUD 操作 -->
+    <!-- ========================================== -->
+
     <insert id="insertBooking" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO bookings (venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version)
         VALUES (#{venueId}, #{userId}, #{bookingDate}, #{timeSlots}, #{status}, #{purpose}, #{pCount}, #{contactInfo}, 1)
     </insert>
+
+    <select id="selectById" resultType="tw.edu.ncu.osa.venue_reservation_service.model.entity.Booking">
+        SELECT id, venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version, created_at, updated_at
+        FROM bookings
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultType="tw.edu.ncu.osa.venue_reservation_service.model.entity.Booking">
+        SELECT id, venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version, created_at, updated_at
+        FROM bookings
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- ========================================== -->
+    <!-- 更新操作 -->
+    <!-- ========================================== -->
+
+    <update id="updateStatusWithVersion">
+        UPDATE bookings
+        SET status = #{newStatus},
+            version = version + 1
+        WHERE id = #{id} AND version = #{oldVersion}
+    </update>
+
+    <update id="updateBooking">
+        UPDATE bookings
+        SET venue_id = #{venueId},
+            booking_date = #{bookingDate},
+            time_slots = #{timeSlots},
+            status = #{status},
+            purpose = #{purpose},
+            p_count = #{pCount},
+            contact_info = #{contactInfo},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <!-- ========================================== -->
+    <!-- 關聯操作 -->
+    <!-- ========================================== -->
 
     <insert id="insertBookingEquipment">
         INSERT INTO booking_equipment (booking_id, equipment_id)
