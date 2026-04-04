@@ -91,4 +91,38 @@ public interface BookingMapper {
      * @return 受影響行數
      */
     int insertBookingEquipment(@Param("bookingId") Long bookingId, @Param("equipmentId") Long equipmentId);
+
+    // ==========================================
+    // 日曆視圖查詢
+    // ==========================================
+
+    /**
+     * 按日期範圍查詢已通過審核的預約
+     * 用於日曆視圖顯示場地的已占用時段
+     * @param venueId 場地 ID
+     * @param startDate 開始日期
+     * @param endDate 結束日期
+     * @return 預約實體列表，按日期升序排列
+     */
+    List<Booking> selectApprovedBookingsByDateRange(
+            @Param("venueId") Long venueId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * 按日期範圍查詢用戶在特定場地的所有預約
+     * 用於日曆視圖顯示用戶的預約紀錄
+     * @param userId 用戶 ID
+     * @param venueId 場地 ID
+     * @param startDate 開始日期
+     * @param endDate 結束日期
+     * @return 預約實體列表，按日期升序排列
+     */
+    List<Booking> selectUserBookingsByDateRange(
+            @Param("userId") String userId,
+            @Param("venueId") Long venueId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

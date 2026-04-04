@@ -80,4 +80,26 @@
         VALUES (#{bookingId}, #{equipmentId})
     </insert>
 
+    <!-- ========================================== -->
+    <!-- 日曆視圖查詢 -->
+    <!-- ========================================== -->
+
+    <select id="selectApprovedBookingsByDateRange" resultType="tw.edu.ncu.osa.venue_reservation_service.model.entity.Booking">
+        SELECT id, venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version, created_at, updated_at
+        FROM bookings
+        WHERE venue_id = #{venueId}
+          AND booking_date BETWEEN #{startDate} AND #{endDate}
+          AND status = 2
+        ORDER BY booking_date ASC
+    </select>
+
+    <select id="selectUserBookingsByDateRange" resultType="tw.edu.ncu.osa.venue_reservation_service.model.entity.Booking">
+        SELECT id, venue_id, user_id, booking_date, time_slots, status, purpose, p_count, contact_info, version, created_at, updated_at
+        FROM bookings
+        WHERE venue_id = #{venueId}
+          AND user_id = #{userId}
+          AND booking_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY booking_date ASC
+    </select>
+
 </mapper>

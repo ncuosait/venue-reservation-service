@@ -81,4 +81,58 @@ public class BookingController {
         bookingService.withdrawBooking(bookingId);
         return Result.success(null);
     }
+
+    // ==========================================
+    // 5. 日曆視圖查詢
+    // ==========================================
+
+    /**
+     * 獲取場地月曆視圖
+     * 顯示該月每日是否有已占用時段和用戶預約
+     * @param venueId 場地 ID
+     * @param year 年份
+     * @param month 月份 (1-12)
+     * @return 月曆視圖資料
+     */
+    @GetMapping("/calendar/month")
+    public Result<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO> getCalendarMonth(
+            @RequestParam Long venueId,
+            @RequestParam Integer year,
+            @RequestParam Integer month) {
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO result =
+                bookingService.getVenueCalendarMonth(venueId, year, month);
+        return Result.success(result);
+    }
+
+    /**
+     * 獲取場地周曆視圖
+     * 顯示該周每日的詳細時段占用情況
+     * @param venueId 場地 ID
+     * @param date 周開始日期 (必須為周一，ISO 8601 格式)
+     * @return 周曆視圖資料
+     */
+    @GetMapping("/calendar/week")
+    public Result<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO> getCalendarWeek(
+            @RequestParam Long venueId,
+            @RequestParam java.time.LocalDate date) {
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO result =
+                bookingService.getVenueCalendarWeek(venueId, date);
+        return Result.success(result);
+    }
+
+    /**
+     * 獲取場地日曆視圖
+     * 顯示該日的詳細時段占用情況和用戶預約列表
+     * @param venueId 場地 ID
+     * @param date 查詢日期 (ISO 8601 格式)
+     * @return 日曆視圖資料
+     */
+    @GetMapping("/calendar/day")
+    public Result<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO> getCalendarDay(
+            @RequestParam Long venueId,
+            @RequestParam java.time.LocalDate date) {
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO result =
+                bookingService.getVenueCalendarDay(venueId, date);
+        return Result.success(result);
+    }
 }

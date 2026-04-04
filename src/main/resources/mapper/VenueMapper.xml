@@ -8,7 +8,7 @@
   <!ATTLIST id property CDATA #REQUIRED column CDATA #REQUIRED>
   <!ELEMENT result (#PCDATA)>
   <!ATTLIST result property CDATA #REQUIRED column CDATA #REQUIRED>
-  <!ELEMENT collection (#PCDATA)>
+  <!ELEMENT collection (id|result)*>
   <!ATTLIST collection property CDATA #REQUIRED ofType CDATA #REQUIRED>
   <!ELEMENT select (#PCDATA)>
   <!ATTLIST select id CDATA #REQUIRED resultType CDATA #IMPLIED resultMap CDATA #IMPLIED>

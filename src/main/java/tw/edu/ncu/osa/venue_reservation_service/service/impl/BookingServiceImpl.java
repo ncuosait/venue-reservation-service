@@ -208,4 +208,299 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("用戶 {} 成功撤回預約申請 ID：{}", userId, bookingId);
     }
+
+    // ==========================================
+    // 5. 日曆視圖查詢
+    // ==========================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO getVenueCalendarMonth(
+            Long venueId,
+            Integer year,
+            Integer month) {
+
+        // ==========================================
+        // 1. 參數驗證
+        // ==========================================
+        if (venueId == null || venueId <= 0) {
+            throw new IllegalArgumentException("場地 ID 不可為空或為負數");
+        }
+
+        if (year == null || month == null || month < 1 || month > 12) {
+            throw new IllegalArgumentException("年份或月份格式不正確");
+        }
+
+        // ==========================================
+        // 2. 計算月份日期範圍
+        // ==========================================
+        java.time.YearMonth yearMonth = java.time.YearMonth.of(year, month);
+        java.time.LocalDate startDate = yearMonth.atDay(1);
+        java.time.LocalDate endDate = yearMonth.atEndOfMonth();
+
+        // ==========================================
+        // 3. 查詢該月份的已通過預約和用戶預約
+        // ==========================================
+        String userId = UserContext.getUser().getUserId();
+        List<Booking> approvedBookings = bookingMapper.selectApprovedBookingsByDateRange(
+                venueId, startDate, endDate);
+        List<Booking> userBookings = bookingMapper.selectUserBookingsByDateRange(
+                userId, venueId, startDate, endDate);
+
+        // ==========================================
+        // 4. 構建日期對應的預約映射表
+        // ==========================================
+        java.util.Map<java.time.LocalDate, Boolean> approvedMap = new java.util.HashMap<>();
+        for (Booking booking : approvedBookings) {
+            approvedMap.put(booking.getBookingDate(), true);
+        }
+
+        java.util.Map<java.time.LocalDate, Boolean> userMap = new java.util.HashMap<>();
+        for (Booking booking : userBookings) {
+            userMap.put(booking.getBookingDate(), true);
+        }
+
+        // ==========================================
+        // 5. 組裝月視圖 VO
+        // ==========================================
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO result =
+                new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO();
+        result.setYear(year);
+        result.setMonth(month);
+
+        List<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO.DaySimpleSummary> days =
+                new ArrayList<>();
+
+        java.time.LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO.DaySimpleSummary daySummary =
+                    new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO.DaySimpleSummary();
+
+            daySummary.setDate(currentDate.toString());
+            daySummary.setHasApprovedBooking(approvedMap.getOrDefault(currentDate, false));
+            daySummary.setHasUserBooking(userMap.getOrDefault(currentDate, false));
+
+            days.add(daySummary);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        result.setDays(days);
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO getVenueCalendarWeek(
+            Long venueId,
+            java.time.LocalDate weekStartDate) {
+
+        // ==========================================
+        // 1. 參數驗證
+        // ==========================================
+        if (venueId == null || venueId <= 0) {
+            throw new IllegalArgumentException("場地 ID 不可為空或為負數");
+        }
+
+        if (weekStartDate == null) {
+            throw new IllegalArgumentException("周開始日期不可為空");
+        }
+
+        // 驗證周開始日期必須為周一
+        if (weekStartDate.getDayOfWeek() != java.time.DayOfWeek.MONDAY) {
+            throw new IllegalArgumentException("周開始日期必須為周一");
+        }
+
+        // ==========================================
+        // 2. 計算周的日期範圍
+        // ==========================================
+        java.time.LocalDate weekEndDate = weekStartDate.plusDays(6);
+
+        // ==========================================
+        // 3. 查詢該周的已通過預約和用戶預約
+        // ==========================================
+        String userId = UserContext.getUser().getUserId();
+        List<Booking> approvedBookings = bookingMapper.selectApprovedBookingsByDateRange(
+                venueId, weekStartDate, weekEndDate);
+        List<Booking> userBookings = bookingMapper.selectUserBookingsByDateRange(
+                userId, venueId, weekStartDate, weekEndDate);
+
+        // ==========================================
+        // 4. 按日期分組預約
+        // ==========================================
+        java.util.Map<java.time.LocalDate, java.util.List<Booking>> approvedByDate =
+                new java.util.HashMap<>();
+        for (Booking booking : approvedBookings) {
+            java.time.LocalDate date = booking.getBookingDate();
+            approvedByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(booking);
+        }
+
+        java.util.Map<java.time.LocalDate, java.util.List<Booking>> userByDate =
+                new java.util.HashMap<>();
+        for (Booking booking : userBookings) {
+            java.time.LocalDate date = booking.getBookingDate();
+            userByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(booking);
+        }
+
+        // ==========================================
+        // 5. 組裝周視圖 VO
+        // ==========================================
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO result =
+                new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO();
+        result.setWeekStart(weekStartDate.toString());
+        result.setWeekEnd(weekEndDate.toString());
+
+        List<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO.DayDetailSummary> days =
+                new ArrayList<>();
+
+        java.time.LocalDate currentDate = weekStartDate;
+        while (!currentDate.isAfter(weekEndDate)) {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO.DayDetailSummary dayDetail =
+                    new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO.DayDetailSummary();
+
+            dayDetail.setDate(currentDate.toString());
+            dayDetail.setDayOfWeek(getDayOfWeekChinese(currentDate));
+
+            // 合併該日的已通過時段
+            java.util.Set<Integer> approvedSlots = new java.util.HashSet<>();
+            java.util.List<Booking> approvedForDate = approvedByDate.getOrDefault(currentDate, new ArrayList<>());
+            for (Booking booking : approvedForDate) {
+                List<Integer> slots = BookingUtils.parseMaskToList(booking.getTimeSlots());
+                approvedSlots.addAll(slots);
+            }
+            List<Integer> approvedSlotsList = new ArrayList<>(approvedSlots);
+            java.util.Collections.sort(approvedSlotsList);
+            dayDetail.setApprovedSlots(approvedSlotsList);
+
+            // 合併該日的用戶時段
+            java.util.Set<Integer> userSlots = new java.util.HashSet<>();
+            java.util.List<Booking> userForDate = userByDate.getOrDefault(currentDate, new ArrayList<>());
+            for (Booking booking : userForDate) {
+                List<Integer> slots = BookingUtils.parseMaskToList(booking.getTimeSlots());
+                userSlots.addAll(slots);
+            }
+            List<Integer> userSlotsList = new ArrayList<>(userSlots);
+            java.util.Collections.sort(userSlotsList);
+            dayDetail.setUserSlots(userSlotsList);
+
+            days.add(dayDetail);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        result.setDays(days);
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO getVenueCalendarDay(
+            Long venueId,
+            java.time.LocalDate date) {
+
+        // ==========================================
+        // 1. 參數驗證
+        // ==========================================
+        if (venueId == null || venueId <= 0) {
+            throw new IllegalArgumentException("場地 ID 不可為空或為負數");
+        }
+
+        if (date == null) {
+            throw new IllegalArgumentException("日期不可為空");
+        }
+
+        // ==========================================
+        // 2. 查詢該日的已通過預約和用戶預約
+        // ==========================================
+        String userId = UserContext.getUser().getUserId();
+        List<Booking> approvedBookings = bookingMapper.selectApprovedBookingsByDateRange(
+                venueId, date, date);
+        List<Booking> userBookings = bookingMapper.selectUserBookingsByDateRange(
+                userId, venueId, date, date);
+
+        // ==========================================
+        // 3. 合併已通過時段（去重）
+        // ==========================================
+        java.util.Set<Integer> approvedSlotsSet = new java.util.HashSet<>();
+        for (Booking booking : approvedBookings) {
+            List<Integer> slots = BookingUtils.parseMaskToList(booking.getTimeSlots());
+            approvedSlotsSet.addAll(slots);
+        }
+        List<Integer> approvedSlots = new ArrayList<>(approvedSlotsSet);
+        java.util.Collections.sort(approvedSlots);
+
+        // ==========================================
+        // 4. 合併用戶時段（去重）
+        // ==========================================
+        java.util.Set<Integer> userSlotsSet = new java.util.HashSet<>();
+        for (Booking booking : userBookings) {
+            List<Integer> slots = BookingUtils.parseMaskToList(booking.getTimeSlots());
+            userSlotsSet.addAll(slots);
+        }
+        List<Integer> userSlots = new ArrayList<>(userSlotsSet);
+        java.util.Collections.sort(userSlots);
+
+        // ==========================================
+        // 5. 組裝用戶預約詳情列表
+        // ==========================================
+        List<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO.UserBookingDetail> userDetails =
+                new ArrayList<>();
+        for (Booking booking : userBookings) {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO.UserBookingDetail detail =
+                    new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO.UserBookingDetail();
+
+            detail.setBookingId(booking.getId());
+            detail.setSlots(BookingUtils.parseMaskToList(booking.getTimeSlots()));
+            detail.setStatus(booking.getStatus());
+            detail.setPurpose(booking.getPurpose());
+            detail.setCreatedAt(booking.getCreatedAt());
+
+            userDetails.add(detail);
+        }
+
+        // ==========================================
+        // 6. 組裝日視圖 VO
+        // ==========================================
+        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO result =
+                new tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO();
+
+        result.setVenueId(venueId);
+        result.setVenueName("場地 " + venueId); // TODO: 從場地表查詢實際場地名稱
+        result.setDate(date.toString());
+        result.setDayOfWeek(getDayOfWeekChinese(date));
+        result.setApprovedSlots(approvedSlots);
+        result.setUserSlots(userSlots);
+        result.setUserBookingDetails(userDetails);
+
+        return result;
+    }
+
+    // ==========================================
+    // 輔助方法
+    // ==========================================
+
+    /**
+     * 將 LocalDate 轉換為中文星期幾
+     * @param date 日期
+     * @return 中文星期幾，例如「星期一」
+     */
+    private String getDayOfWeekChinese(java.time.LocalDate date) {
+        switch (date.getDayOfWeek()) {
+            case MONDAY:
+                return "星期一";
+            case TUESDAY:
+                return "星期二";
+            case WEDNESDAY:
+                return "星期三";
+            case THURSDAY:
+                return "星期四";
+            case FRIDAY:
+                return "星期五";
+            case SATURDAY:
+                return "星期六";
+            case SUNDAY:
+                return "星期日";
+            default:
+                return "未知";
+        }
+    }
 }
+

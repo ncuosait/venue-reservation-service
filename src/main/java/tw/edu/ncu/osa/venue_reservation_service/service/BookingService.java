@@ -57,4 +57,49 @@ public interface BookingService {
      * @throws RuntimeException 當預約不存在、不屬於當前用戶或狀態不符合撤回條件時拋出
      */
     void withdrawBooking(Long bookingId);
+
+    // ==========================================
+    // 日曆視圖查詢
+    // ==========================================
+    
+    /**
+     * 獲取場地月曆視圖
+     * 顯示該月每日是否有已占用時段和用戶預約
+     * @param venueId 場地 ID
+     * @param year 年份
+     * @param month 月份 (1-12)
+     * @return 月曆視圖資料
+     * @throws IllegalArgumentException 當參數無效時拋出
+     */
+    tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO getVenueCalendarMonth(
+            Long venueId, 
+            Integer year, 
+            Integer month
+    );
+    
+    /**
+     * 獲取場地周曆視圖
+     * 顯示該周每日的詳細時段占用情況
+     * @param venueId 場地 ID
+     * @param weekStartDate 周開始日期 (必須為周一)
+     * @return 周曆視圖資料
+     * @throws IllegalArgumentException 當周開始日期不是周一或參數無效時拋出
+     */
+    tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO getVenueCalendarWeek(
+            Long venueId, 
+            java.time.LocalDate weekStartDate
+    );
+    
+    /**
+     * 獲取場地日曆視圖
+     * 顯示該日的詳細時段占用情況和用戶預約列表
+     * @param venueId 場地 ID
+     * @param date 查詢日期
+     * @return 日曆視圖資料
+     * @throws IllegalArgumentException 當參數無效時拋出
+     */
+    tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO getVenueCalendarDay(
+            Long venueId, 
+            java.time.LocalDate date
+    );
 }
