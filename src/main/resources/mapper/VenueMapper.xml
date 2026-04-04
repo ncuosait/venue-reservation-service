@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper [
+  <!ELEMENT mapper (resultMap|select|insert|update|delete)*>
+  <!ATTLIST mapper namespace CDATA #REQUIRED>
+  <!ELEMENT resultMap (id|result|collection)*>
+  <!ATTLIST resultMap id CDATA #REQUIRED type CDATA #REQUIRED>
+  <!ELEMENT id (#PCDATA)>
+  <!ATTLIST id property CDATA #REQUIRED column CDATA #REQUIRED>
+  <!ELEMENT result (#PCDATA)>
+  <!ATTLIST result property CDATA #REQUIRED column CDATA #REQUIRED>
+  <!ELEMENT collection (#PCDATA)>
+  <!ATTLIST collection property CDATA #REQUIRED ofType CDATA #REQUIRED>
+  <!ELEMENT select (#PCDATA)>
+  <!ATTLIST select id CDATA #REQUIRED resultType CDATA #IMPLIED resultMap CDATA #IMPLIED>
+]>
+<mapper namespace="tw.edu.ncu.osa.venue_reservation_service.mapper.VenueMapper">
+
+    <!-- ========================================== -->
+    <!-- ResultMap 定義 - 場地與設備關聯映射 -->
+    <!-- ========================================== -->
+
+    <resultMap id="VenueDetailMap" type="tw.edu.ncu.osa.venue_reservation_service.model.entity.Venue">
+        <id property="id" column="id" />
+        <result property="unitId" column="unit_id" />
+        <result property="name" column="name" />
+        <result property="capacity" column="capacity" />
+        <result property="description" column="description" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <!-- 透過 LEFT JOIN 結果填充場地的設備清單 -->
+        <collection property="equipments" ofType="tw.edu.ncu.osa.venue_reservation_service.model.entity.Equipment">
+            <id property="id" column="equip_id" />
+            <result property="name" column="equip_name" />
+            <result property="createdAt" column="equip_created_at" />
+        </collection>
+    </resultMap>
+
+    <!-- ========================================== -->
+    <!-- 查詢操作 -->
+    <!-- ========================================== -->
+
+    <select id="selectVenuesByUnitId" resultMap="VenueDetailMap">
+        SELECT
+            v.id,
+            v.unit_id,
+            v.name,
+            v.capacity,
+            v.description,
+            v.created_at,
+            v.updated_at,
+            e.id as equip_id,
+            e.name as equip_name,
+            e.created_at as equip_created_at
+        FROM venues v
+        LEFT JOIN venue_equipment_map vem ON v.id = vem.venue_id
+        LEFT JOIN equipments e ON vem.equipment_id = e.id
+        WHERE v.unit_id = #{unitId}
+        ORDER BY v.id ASC
+    </select>
+
+    <select id="selectVenueById" resultMap="VenueDetailMap">
+        SELECT
+            v.id,
+            v.unit_id,
+            v.name,
+            v.capacity,
+            v.description,
+            v.created_at,
+            v.updated_at,
+            e.id as equip_id,
+            e.name as equip_name,
+            e.created_at as equip_created_at
+        FROM venues v
+        LEFT JOIN venue_equipment_map vem ON v.id = vem.venue_id
+        LEFT JOIN equipments e ON vem.equipment_id = e.id
+        WHERE v.id = #{id}
+    </select>
+
+</mapper>
+
