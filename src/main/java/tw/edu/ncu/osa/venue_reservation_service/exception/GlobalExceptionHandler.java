@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<Void> handleRuntimeException(RuntimeException e) {
         log.error("系統發生運行時異常: ", e); // 在後端 Log 記錄詳細錯誤資訊
-        return Result.error("伺服器內部錯誤，請稍後再試");
+        log.error(e.getMessage()); // 顯示異常訊息
+        return Result.error(e.getMessage());
     }
 
     /**

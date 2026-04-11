@@ -501,8 +501,8 @@ if (venue == null) {
 #### 月曆視圖回應
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "year": 2026,
         "month": 4,
@@ -525,15 +525,15 @@ if (venue == null) {
 #### 周曆視圖回應
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "weekStart": "2026-04-06",
         "weekEnd": "2026-04-12",
         "days": [
             {
                 "date": "2026-04-06",
-                "dayOfWeek": "Monday",
+                "dayOfWeek": "星期一",
                 "approvedSlots": [9, 10, 11],
                 "userSlots": [14, 15, 16]
             }
@@ -545,8 +545,8 @@ if (venue == null) {
 #### 日曆視圖回應
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "venueId": 1,
         "venueName": "會議室 A",

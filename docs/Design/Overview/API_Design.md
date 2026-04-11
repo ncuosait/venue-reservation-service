@@ -14,14 +14,14 @@
 
 ```json
 {
-  "code": "200",
+  "success": true,
   "message": "操作成功",
   "data": { ... }
 }
 ```
 
 **回應字段說明：**
-- `code` (String)：HTTP 狀態碼（"200" 成功，"400" 參數錯誤，"404" 資源不存在，"500" 服務器錯誤）
+- `success` (Boolean)：執行是否成功（true 成功，false 失敗）
 - `message` (String)：操作結果描述，成功時為「操作成功」，失敗時為具體的錯誤原因
 - `data` (Generic)：實際回傳的數據，失敗時為 null
 
@@ -40,7 +40,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": [
       {
@@ -72,7 +72,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": [
       {
@@ -103,7 +103,7 @@
 - **失敗回應 (400)：** 缺少必填參數 `unitId`
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "缺少必填參數：unitId",
     "data": null
   }
@@ -119,7 +119,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": {
       "id": 101,
@@ -134,7 +134,7 @@
 - **失敗回應 (404)：** 場地不存在
   ```json
   {
-    "code": "404",
+    "success": false,
     "message": "場地不存在",
     "data": null
   }
@@ -182,7 +182,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": 501
   }
@@ -194,16 +194,16 @@
 - **失敗回應 - 時段衝突 (200)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "該時段已被其他已通過之申請佔用",
     "data": null
   }
   ```
 
-- **失敗回應 - 參數驗證 (400)：**
+- **失敗回應 - 參數驗證 (200)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "預約日期不能是過去的時間",
     "data": null
   }
@@ -217,7 +217,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": [
       {
@@ -260,7 +260,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": null
   }
@@ -269,7 +269,7 @@
 - **失敗回應 - 無權限 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "無權限修改他人的預約申請",
     "data": null
   }
@@ -278,7 +278,7 @@
 - **失敗回應 - 狀態不符 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "該預約申請已被拒絕或已撤回，無法修改",
     "data": null
   }
@@ -296,7 +296,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": null
   }
@@ -305,7 +305,7 @@
 - **失敗回應 - 無權限 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "無權限撤回他人的預約申請",
     "data": null
   }
@@ -314,7 +314,7 @@
 - **失敗回應 - 狀態不符 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "已拒絕或已撤回之申請無法再次撤回",
     "data": null
   }
@@ -339,7 +339,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": {
       "year": 2026,
@@ -381,7 +381,7 @@
 - **失敗回應 - 參數無效 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "年份或月份格式不正確",
     "data": null
   }
@@ -398,7 +398,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": {
       "weekStart": "2026-04-06",
@@ -433,7 +433,7 @@
 - **失敗回應 - 周開始日期非周一 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "周開始日期必須為周一",
     "data": null
   }
@@ -450,7 +450,7 @@
 - **成功回應 (200)：**
   ```json
   {
-    "code": "200",
+    "success": true,
     "message": "操作成功",
     "data": {
       "venueId": 101,
@@ -489,7 +489,7 @@
 - **失敗回應 - 參數無效 (400)：**
   ```json
   {
-    "code": "400",
+    "success": false,
     "message": "日期不可為空",
     "data": null
   }
@@ -633,7 +633,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 ```javascript
 // 統一處理 Result<T> 格式
 const handleResponse = (response) => {
-  if (response.code === '200') {
+  if (response.success) {
     return response.data;
   } else {
     throw new Error(response.message);

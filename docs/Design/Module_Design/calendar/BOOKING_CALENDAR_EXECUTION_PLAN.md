@@ -192,8 +192,8 @@ GET /api/bookings/calendar/month?venueId={id}&year={y}&month={m}
 
 Response 200 OK:
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "year": 2026,
         "month": 4,
@@ -212,15 +212,15 @@ GET /api/bookings/calendar/week?venueId={id}&date=2026-04-06
 
 Response 200 OK:
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "weekStart": "2026-04-06",
         "weekEnd": "2026-04-12",
         "days": [
             {
                 "date": "2026-04-06",
-                "dayOfWeek": "Monday",
+                "dayOfWeek": "星期一",
                 "approvedSlots": [9, 10, 11],
                 "userSlots": [14, 15, 16]
             },
@@ -236,13 +236,13 @@ GET /api/bookings/calendar/day?venueId={id}&date=2026-04-06
 
 Response 200 OK:
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "venueId": 1,
         "venueName": "會議室 A",
         "date": "2026-04-06",
-        "dayOfWeek": "Monday",
+        "dayOfWeek": "星期一",
         "approvedSlots": [9, 10, 11, 14],
         "userSlots": [15, 16, 17],
         "userBookingDetails": [

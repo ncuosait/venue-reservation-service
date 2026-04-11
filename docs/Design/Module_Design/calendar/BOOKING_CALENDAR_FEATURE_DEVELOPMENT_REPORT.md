@@ -200,8 +200,8 @@ private String getDayOfWeekChinese(LocalDate date) {
 ### 月曆視圖
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "year": 2026,
         "month": 4,
@@ -217,8 +217,8 @@ private String getDayOfWeekChinese(LocalDate date) {
 ### 周曆視圖
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "weekStart": "2026-04-06",
         "weekEnd": "2026-04-12",
@@ -237,8 +237,8 @@ private String getDayOfWeekChinese(LocalDate date) {
 ### 日曆視圖
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "venueId": 1,
         "venueName": "場地 1",

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper [
-  <!ELEMENT mapper (select|insert|update|delete)*>
+  <!ELEMENT mapper (resultMap|select|insert|update|delete)*>
   <!ATTLIST mapper namespace CDATA #REQUIRED>
+  <!ELEMENT resultMap (result)*>
+  <!ATTLIST resultMap id CDATA #REQUIRED type CDATA #REQUIRED>
+  <!ELEMENT result EMPTY>
+  <!ATTLIST result column CDATA #REQUIRED property CDATA #REQUIRED typeHandler CDATA #IMPLIED>
   <!ELEMENT select (#PCDATA)>
   <!ATTLIST select id CDATA #REQUIRED resultType CDATA #IMPLIED resultMap CDATA #IMPLIED>
   <!ELEMENT insert (#PCDATA)>
@@ -12,6 +16,23 @@
   <!ATTLIST delete id CDATA #REQUIRED parameterType CDATA #IMPLIED>
 ]>
 <mapper namespace="tw.edu.ncu.osa.venue_reservation_service.mapper.BookingMapper">
+
+    <!-- ========================================== -->
+    <!-- 結果映射 -->
+    <!-- ========================================== -->
+
+    <resultMap id="bookingVOResultMap" type="tw.edu.ncu.osa.venue_reservation_service.model.vo.BookingVO">
+        <result column="id" property="id"/>
+        <result column="venue_name" property="venueName"/>
+        <result column="booking_date" property="bookingDate"/>
+        <result column="slots" property="slots" typeHandler="tw.edu.ncu.osa.venue_reservation_service.util.TimeSlotTypeHandler"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="purpose" property="purpose"/>
+        <result column="p_count" property="pCount"/>
+        <result column="contact_info" property="contactInfo"/>
+        <result column="equipments" property="equipments" typeHandler="tw.edu.ncu.osa.venue_reservation_service.util.CommaSeparatedListTypeHandler"/>
+    </resultMap>
 
     <!-- ========================================== -->
     <!-- 衝突檢查 -->
@@ -100,6 +121,28 @@
           AND user_id = #{userId}
           AND booking_date BETWEEN #{startDate} AND #{endDate}
         ORDER BY booking_date ASC
+    </select>
+
+    <select id="selectBookingsByDateRangeForCalendar" resultMap="bookingVOResultMap">
+        SELECT
+            b.id,
+            v.name AS venue_name,
+            b.booking_date,
+            b.time_slots AS slots,
+            b.status,
+            b.created_at,
+            b.purpose,
+            b.p_count,
+            b.contact_info,
+            GROUP_CONCAT(DISTINCT e.name SEPARATOR ',') AS equipments
+        FROM bookings b
+        INNER JOIN venues v ON b.venue_id = v.id
+        LEFT JOIN booking_equipment be ON b.id = be.booking_id
+        LEFT JOIN equipments e ON be.equipment_id = e.id
+        WHERE b.venue_id = #{venueId}
+          AND b.booking_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY b.id, v.name, b.booking_date, b.time_slots, b.status, b.created_at, b.purpose, b.p_count, b.contact_info
+        ORDER BY b.booking_date ASC, b.created_at ASC
     </select>
 
 </mapper>

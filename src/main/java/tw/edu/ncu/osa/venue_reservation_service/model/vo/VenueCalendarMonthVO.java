@@ -36,6 +36,12 @@ public class VenueCalendarMonthVO {
      * 該月所有日期的摘要資訊
      */
     private List<DaySimpleSummary> days;
+
+    /**
+     * 該月所有預約資訊（包括所有狀態）
+     * 前端根據各預約的 status 與 slots 判斷時段占用情況
+     */
+    private List<BookingVO> bookings;
     
     // ==========================================
     // 內部類：日期簡化摘要

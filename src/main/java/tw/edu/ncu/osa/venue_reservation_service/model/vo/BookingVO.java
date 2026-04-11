@@ -49,5 +49,27 @@ public class BookingVO {
      * 申請時間
      */
     private LocalDateTime createdAt;
-}
 
+    /**
+     * 使用用途
+     */
+    private String purpose;
+
+    /**
+     * 預估參與人數
+     */
+    private Integer pCount;
+
+    /**
+     * 聯絡人資訊 (JSON 格式字串)
+     * 包含 name, phone, email 等聯絡資訊
+     * 例如: {"name":"張三","phone":"0912345678","email":"zhangsan@example.com"}
+     */
+    private String contactInfo;
+
+    /**
+     * 所借用的設備清單
+     * 例如: ["麥克風", "投影機", "音響"]
+     */
+    private List<String> equipments;
+}

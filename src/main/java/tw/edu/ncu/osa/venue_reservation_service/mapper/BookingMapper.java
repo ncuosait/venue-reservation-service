@@ -125,4 +125,18 @@ public interface BookingMapper {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * 按日期範圍查詢場地的全部預約（用於月曆視圖）
+     * 返回指定場地該月份的所有預約，包括全部狀態
+     * @param venueId 場地 ID
+     * @param startDate 開始日期
+     * @param endDate 結束日期
+     * @return BookingVO 列表，按日期升序排列
+     */
+    List<tw.edu.ncu.osa.venue_reservation_service.model.vo.BookingVO> selectBookingsByDateRangeForCalendar(
+            @Param("venueId") Long venueId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

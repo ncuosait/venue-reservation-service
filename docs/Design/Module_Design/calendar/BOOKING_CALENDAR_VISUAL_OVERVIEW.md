@@ -485,8 +485,8 @@ VALUES (1, 'student001', '2026-04-15', 24576, 3, '讀書會', 10,
 
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "year": 2026,
         "month": 4,
@@ -507,33 +507,33 @@ VALUES (1, 'student001', '2026-04-15', 24576, 3, '讀書會', 10,
 
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "weekStart": "2026-04-06",
         "weekEnd": "2026-04-12",
         "days": [
             {
                 "date": "2026-04-06",
-                "dayOfWeek": "Monday",
+                "dayOfWeek": "星期一",
                 "approvedSlots": [9, 10, 14, 15],
                 "userSlots": []
             },
             {
                 "date": "2026-04-07",
-                "dayOfWeek": "Tuesday",
+                "dayOfWeek": "星期二",
                 "approvedSlots": [8, 9],
                 "userSlots": []
             },
             {
                 "date": "2026-04-08",
-                "dayOfWeek": "Wednesday",
+                "dayOfWeek": "星期三",
                 "approvedSlots": [],
                 "userSlots": [15, 16]
             },
             {
                 "date": "2026-04-09",
-                "dayOfWeek": "Thursday",
+                "dayOfWeek": "星期四",
                 "approvedSlots": [],
                 "userSlots": [10, 11]
             }
@@ -546,13 +546,13 @@ VALUES (1, 'student001', '2026-04-15', 24576, 3, '讀書會', 10,
 
 ```json
 {
-    "code": "200",
-    "message": "success",
+    "success": true,
+    "message": "操作成功",
     "data": {
         "venueId": 1,
         "venueName": "會議室 A",
         "date": "2026-04-06",
-        "dayOfWeek": "Monday",
+        "dayOfWeek": "星期一",
         "approvedSlots": [9, 10, 14, 15],
         "userSlots": [],
         "userBookingDetails": []

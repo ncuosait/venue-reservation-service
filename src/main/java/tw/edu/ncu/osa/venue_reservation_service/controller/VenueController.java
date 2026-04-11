@@ -1,6 +1,7 @@
 package tw.edu.ncu.osa.venue_reservation_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.List;
  * 場地與組織 RESTful API 控制層
  * 提供場地、單位與設備資訊的公開查詢終端點
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/public")
 @RequiredArgsConstructor
@@ -33,8 +35,16 @@ public class VenueController {
      */
     @GetMapping("/units")
     public Result<List<UnitVO>> getAllUnits() {
-        List<UnitVO> units = venueService.getAllUnits();
-        return Result.success(units);
+        log.info("【VenueController】收到請求：獲取所有管理單位清單");
+        try {
+            List<UnitVO> units = venueService.getAllUnits();
+            log.info("【VenueController】成功獲取管理單位清單，共 {} 個單位", units.size());
+            log.debug("【VenueController】返回單位數據：{}", units);
+            return Result.success(units);
+        } catch (Exception e) {
+            log.error("【VenueController】獲取管理單位清單失敗", e);
+            throw e;
+        }
     }
 
     // ==========================================
@@ -48,8 +58,16 @@ public class VenueController {
      */
     @GetMapping("/venues")
     public Result<List<VenueVO>> getVenuesByUnit(@RequestParam Long unitId) {
-        List<VenueVO> venues = venueService.getVenuesByUnitId(unitId);
-        return Result.success(venues);
+        log.info("【VenueController】收到請求：根據單位 ID 查詢場地清單，unitId={}", unitId);
+        try {
+            List<VenueVO> venues = venueService.getVenuesByUnitId(unitId);
+            log.info("【VenueController】成功查詢到場地清單，unitId={}，共 {} 個場地", unitId, venues.size());
+            log.debug("【VenueController】返回場地數據：{}", venues);
+            return Result.success(venues);
+        } catch (Exception e) {
+            log.error("【VenueController】查詢場地清單失敗，unitId={}", unitId, e);
+            throw e;
+        }
     }
 
     /**
@@ -59,8 +77,16 @@ public class VenueController {
      */
     @GetMapping("/venues/{id}")
     public Result<VenueVO> getVenueById(@PathVariable Long id) {
-        VenueVO venue = venueService.getVenueById(id);
-        return Result.success(venue);
+        log.info("【VenueController】收到請求：獲取場地詳細資訊，id={}", id);
+        try {
+            VenueVO venue = venueService.getVenueById(id);
+            log.info("【VenueController】成功獲取場地詳細資訊，id={}，場地名稱={}", id, venue.getName());
+            log.debug("【VenueController】返回場地數據：{}", venue);
+            return Result.success(venue);
+        } catch (Exception e) {
+            log.error("【VenueController】獲取場地詳細資訊失敗，id={}", id, e);
+            throw e;
+        }
     }
 }
 

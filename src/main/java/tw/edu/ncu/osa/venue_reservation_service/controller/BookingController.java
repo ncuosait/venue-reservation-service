@@ -2,6 +2,7 @@ package tw.edu.ncu.osa.venue_reservation_service.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ncu.osa.venue_reservation_service.common.result.Result;
 import tw.edu.ncu.osa.venue_reservation_service.model.dto.BookingRequestDTO;
@@ -13,6 +14,7 @@ import java.util.List;
  * 預約管理 API 控制器
  * 負責處理預約相關的 HTTP 請求
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/bookings")
 @RequiredArgsConstructor
@@ -31,8 +33,18 @@ public class BookingController {
      */
     @PostMapping
     public Result<Long> createBooking(@Valid @RequestBody BookingRequestDTO request) {
-        Long bookingId = bookingService.createBooking(request);
-        return Result.success(bookingId);
+        log.info("【BookingController】收到請求：提交預約申請");
+        log.info("【BookingController】請求參數 - venueId={}, bookingDate={}, slots={}, purpose={}",
+                request.getVenueId(), request.getBookingDate(), request.getSlots(), request.getPurpose());
+        try {
+            Long bookingId = bookingService.createBooking(request);
+            log.info("【BookingController】成功建立預約申請，新預約 ID={}", bookingId);
+            return Result.success(bookingId);
+        } catch (Exception e) {
+            log.error("【BookingController】提交預約申請失敗，venueId={}, bookingDate={}", 
+                    request.getVenueId(), request.getBookingDate(), e);
+            throw e;
+        }
     }
 
     // ==========================================
@@ -45,8 +57,16 @@ public class BookingController {
      */
     @GetMapping("/my")
     public Result<List<BookingVO>> getMyBookings() {
-        List<BookingVO> bookings = bookingService.getMyBookings();
-        return Result.success(bookings);
+        log.info("【BookingController】收到請求：查看個人預約清單");
+        try {
+            List<BookingVO> bookings = bookingService.getMyBookings();
+            log.info("【BookingController】成功查詢個人預約清單，共 {} 筆預約", bookings.size());
+            log.debug("【BookingController】返回預約數據：{}", bookings);
+            return Result.success(bookings);
+        } catch (Exception e) {
+            log.error("【BookingController】查詢個人預約清單失敗", e);
+            throw e;
+        }
     }
 
     // ==========================================
@@ -63,8 +83,17 @@ public class BookingController {
     public Result<Void> updateBooking(
             @PathVariable(name = "id") Long bookingId,
             @Valid @RequestBody BookingRequestDTO request) {
-        bookingService.updateBooking(bookingId, request);
-        return Result.success(null);
+        log.info("【BookingController】收到請求：修改預約申請，bookingId={}", bookingId);
+        log.info("【BookingController】修改參數 - venueId={}, bookingDate={}, slots={}", 
+                request.getVenueId(), request.getBookingDate(), request.getSlots());
+        try {
+            bookingService.updateBooking(bookingId, request);
+            log.info("【BookingController】成功修改預約申請，bookingId={}", bookingId);
+            return Result.success(null);
+        } catch (Exception e) {
+            log.error("【BookingController】修改預約申請失敗，bookingId={}", bookingId, e);
+            throw e;
+        }
     }
 
     // ==========================================
@@ -78,8 +107,15 @@ public class BookingController {
      */
     @PutMapping("/{id}/withdraw")
     public Result<Void> withdrawBooking(@PathVariable(name = "id") Long bookingId) {
-        bookingService.withdrawBooking(bookingId);
-        return Result.success(null);
+        log.info("【BookingController】收到請求：撤回預約申請，bookingId={}", bookingId);
+        try {
+            bookingService.withdrawBooking(bookingId);
+            log.info("【BookingController】成功撤回預約申請，bookingId={}", bookingId);
+            return Result.success(null);
+        } catch (Exception e) {
+            log.error("【BookingController】撤回預約申請失敗，bookingId={}", bookingId, e);
+            throw e;
+        }
     }
 
     // ==========================================
@@ -99,9 +135,19 @@ public class BookingController {
             @RequestParam Long venueId,
             @RequestParam Integer year,
             @RequestParam Integer month) {
-        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO result =
-                bookingService.getVenueCalendarMonth(venueId, year, month);
-        return Result.success(result);
+        log.info("【BookingController】收到請求：獲取場地月曆視圖，venueId={}, year={}, month={}", 
+                venueId, year, month);
+        try {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarMonthVO result =
+                    bookingService.getVenueCalendarMonth(venueId, year, month);
+            log.info("【BookingController】成功獲取月曆視圖，venueId={}, 共 {} 天數據", venueId, result.getDays().size());
+            log.debug("【BookingController】返回月曆數據：{}", result);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("【BookingController】獲取月曆視圖失敗，venueId={}, year={}, month={}", 
+                    venueId, year, month, e);
+            throw e;
+        }
     }
 
     /**
@@ -115,9 +161,18 @@ public class BookingController {
     public Result<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO> getCalendarWeek(
             @RequestParam Long venueId,
             @RequestParam java.time.LocalDate date) {
-        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO result =
-                bookingService.getVenueCalendarWeek(venueId, date);
-        return Result.success(result);
+        log.info("【BookingController】收到請求：獲取場地周曆視圖，venueId={}, weekStart={}", venueId, date);
+        try {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarWeekVO result =
+                    bookingService.getVenueCalendarWeek(venueId, date);
+            log.info("【BookingController】成功獲取周曆視圖，venueId={}, weekStart={}, 共 {} 天數據", 
+                    venueId, date, result.getDays().size());
+            log.debug("【BookingController】返回周曆數據：{}", result);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("【BookingController】獲取周曆視圖失敗，venueId={}, weekStart={}", venueId, date, e);
+            throw e;
+        }
     }
 
     /**
@@ -131,8 +186,16 @@ public class BookingController {
     public Result<tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO> getCalendarDay(
             @RequestParam Long venueId,
             @RequestParam java.time.LocalDate date) {
-        tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO result =
-                bookingService.getVenueCalendarDay(venueId, date);
-        return Result.success(result);
+        log.info("【BookingController】收到請求：獲取場地日曆視圖，venueId={}, date={}", venueId, date);
+        try {
+            tw.edu.ncu.osa.venue_reservation_service.model.vo.VenueCalendarDayVO result =
+                    bookingService.getVenueCalendarDay(venueId, date);
+            log.info("【BookingController】成功獲取日曆視圖，venueId={}, date={}", venueId, date);
+            log.debug("【BookingController】返回日曆數據：{}", result);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("【BookingController】獲取日曆視圖失敗，venueId={}, date={}", venueId, date, e);
+            throw e;
+        }
     }
 }
